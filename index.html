@@ -899,7 +899,7 @@
 </footer>
 
 <script>
-  const STREAM_URL = 'https://cost-notebook-absolute-joined.trycloudflare.com/play/a0zl/index.m3u8';
+  const STREAM_URL = 'https://dancing-duncan-found-ellis.trycloudflare.com/play/a0zl/index.m3u8';
   let hls = null;
   let started = false;
 
@@ -919,47 +919,23 @@
     console.log('URL:', STREAM_URL);
 
     if (Hls.isSupported()) {
-      hls = new Hls({
+    hls = new Hls({
         enableWorker: true,
         lowLatencyMode: true,
-        backBufferLength: 90,
-        xhrSetup: function(xhr) {
-          xhr.withCredentials = false;
+        // Forzamos a que no intente enviar cookies o headers privados
+        xhrSetup: function(xhr, url) {
+            xhr.withCredentials = false;
         }
-      });
+    });
 
-      hls.loadSource(STREAM_URL);
-      hls.attachMedia(video);
+    hls.loadSource(STREAM_URL);
+    hls.attachMedia(video);
 
-      hls.on(Hls.Events.MANIFEST_PARSED, () => {
-        statusText.textContent = 'Señal recibida — En vivo';
+    hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        console.log("¡Señal detectada!");
         loading.classList.add('hidden');
-        if (started) video.play().catch(() => {});
-      });
-
-      hls.on(Hls.Events.ERROR, (event, data) => {
-        console.error('HLS Error:', data.type, data.details, data);
-        statusText.textContent = 'Error: ' + data.details;
-        if (data.fatal) {
-          loading.classList.add('hidden');
-          errorOverlay.classList.add('show');
-        }
-      });
-
-      hls.on(Hls.Events.LEVEL_LOADED, () => {
-        statusText.textContent = '🔴 En vivo — HD';
-      });
-
-    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-      video.src = STREAM_URL;
-      video.addEventListener('loadedmetadata', () => {
-        loading.classList.add('hidden');
-        statusText.textContent = '🔴 En vivo';
-        if (started) video.play().catch(() => {});
-      });
-    } else {
-      statusText.textContent = 'Navegador no compatible con HLS';
-      loading.classList.add('hidden');
+        statusText.textContent = '🔴 EN VIVO — HD';
+    });
     }
   }
 
